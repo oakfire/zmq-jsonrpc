@@ -384,15 +384,7 @@ RPC.prototype.call = function (method, params, client_id) {
         else {
             self.logger.debug(Util.format("0MQ [%s] => %s", id, JSON.stringify(data)));
         }
-    
-        var msg = msgpack.pack(data)
-        if (self.isServer) {
-            self.socket.send([new Buffer(client_id, 'base64'), msg]);
-        }
-        else {
-            self.socket.send(msg);
-        }
-    
+
         self.promisedRequests[id] = {
             method: method,
             params: params,
@@ -408,9 +400,15 @@ RPC.prototype.call = function (method, params, client_id) {
                 message: "Call Timeout"
             });
         }, self.callTimeout);
-        
+
+        var msg = msgpack.pack(data)
+        if (self.isServer) {
+            self.socket.send([new Buffer(client_id, 'base64'), msg]);
+        }
+        else {
+            self.socket.send(msg);
+        }
     })
-    
 };
 
 var RPCWrapper = function() {
